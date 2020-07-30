@@ -4,7 +4,7 @@ export PATH
 stty erase ^H
 
 #版本
-sh_ver="7.4.6"
+sh_ver="7.4.7"
 github="https://raw.githubusercontent.com/AmuyangA/public/master"
 
 #颜色信息
@@ -616,9 +616,7 @@ manage_trojan(){
 		systemctl enable trojan
 		systemctl start trojan
 		view_password '2'
-		echo -e "${Tip}安装完成,如需设置伪装,请手动删除配置文件中监听的 ${port} 端口,否则会报错!!!"
-		echo -e "${Tip}证书以及用户配置文件所在文件夹：/root/certificate"
-		echo -e "${Info}任意键返回Trojan用户管理页..."
+		echo -e "${Info}安装完成，任意键返回Trojan用户管理页..."
 		char=`get_char`
 		manage_user_trojan
 	}
@@ -2123,6 +2121,7 @@ remove_all(){
 	sed -i '/net.core.netdev_max_backlog/d' /etc/sysctl.conf
 	sed -i '/net.ipv4.tcp_timestamps/d' /etc/sysctl.conf
 	sed -i '/net.ipv4.tcp_max_orphans/d' /etc/sysctl.conf
+	bbrgithub='https://raw.githubusercontent.com/chiakge/Linux-NetSpeed/master'
 	if [[ -e /appex/bin/lotServer.sh ]]; then
 		bash <(wget --no-check-certificate -qO- ${bbrgithub}/Install.sh) uninstall
 	fi
@@ -2146,39 +2145,6 @@ startbbrplus(){
 	fi
 	sleep 2s
 	exec ./xbdz.sh
-}
-
-check_port(){
-	unset port
-	until [[ ${port} -ge "1" && ${port} -le "65535" ]]
-	do
-		clear
-		echo && read -p "${webinfo}" port
-		[ -z "${port}" ] && port=80
-		if [[ -n "$(lsof -i:${port})" ]]; then
-			echo -e "${Error}端口${port}已被占用！请输入新的端口!!!"
-			sleep 2s && check_port
-		fi
-	done
-}
-set_fakeweb(){
-	clear
-	webinfo='请输入网站访问端口(未占用端口)(默认:80)：'
-	check_port
-	install_docker
-	i=0
-	until [[ $i -ge '1' && ! -d "${fakeweb}" ]]
-	do
-		i=$[$i+1] && fakeweb="/opt/fakeweb${i}"
-	done
-	mkdir -p ${fakeweb} && cd ${fakeweb}
-	wget https://raw.githubusercontent.com/AmuyangA/public/master/panel/nginx/dingyue.zip
-	wget https://raw.githubusercontent.com/AmuyangA/public/master/panel/nginx/docker-compose.yml
-	unzip dingyue.zip
-	sed -i "s#weburl#http://$(get_ip):${port}#g" ${fakeweb}/html/dingyue.html
-	sed -i "s#de_port#${port}#g" docker-compose.yml
-	echo -e "${Info}首次启动会拉取镜像，国内速度比较慢，请耐心等待完成..."
-	docker-compose up -d
 }
 
 #生成字符二维码
@@ -2218,7 +2184,11 @@ manage_qrcode(){
 manage_btpanel(){
 	set_btpanel(){
 		clear
-		bt
+		if type bt >/dev/null 2>&1; then 
+			bt
+		else
+			echo -e "${Error}宝塔面板未安装，请先安装宝塔面板..."
+		fi
 		echo -e "${Info}按任意键继续..."
 		char=`get_char`
 	}
@@ -3055,6 +3025,9 @@ if [[ ! -e /root/test/de ]]; then
 
 	#开启脚本自启
 	if [[ `grep -c "./xbdz.sh" .bash_profile` -eq '0' ]]; then
+		echo "./xbdz.sh" >> .bash_profile
+	fi
+	if [[ `grep -c "./xbdz.sh" /root/.bash_profile` -eq '0' ]]; then
 		echo "./xbdz.sh" >> /root/.bash_profile
 	fi
 
@@ -3134,6 +3107,7 @@ if [[ ! -e /root/test/de ]]; then
 				/usr/sbin/update-grub
 			fi
 			echo 'false' > /root/test/de
+			echo -e "${Info}正在重启VPS..."
 			reboot
 		else
 			echo -e "${Error}BBRplus内核不支持${release} ${version} ${bit} !" && exit 1
