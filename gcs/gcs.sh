@@ -3,7 +3,7 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 stty erase ^H
 
-sh_ver='1.4.3'
+sh_ver='1.4.4'
 github='https://raw.githubusercontent.com/AmuyangA/public/master'
 new_ver=$(curl -s "${github}"/gcs/gcs.sh|grep 'sh_ver='|head -1|awk -F '=' '{print $2}'|sed $'s/\'//g')
 if [[ $sh_ver != "${new_ver}" ]]; then
@@ -60,9 +60,7 @@ else
 	PM='apt'
 fi
 
-ssh_num=$(hostname -f|awk -F '-' '{print $2}')
 ssh_port=6000
-HOSTNAME="$(hostname -f|awk -F "${ssh_num}-" '{print $2}').cloudshell.dev"
 ip_path="$(pwd)/ipadd"
 IP=$(curl -s ipinfo.io/ip)
 [ -z ${IP} ] && IP=$(curl -s http://api.ipify.org)
@@ -94,9 +92,8 @@ echo $pw >> $(pwd)/ipadd
 
 clear
 green_font '免费撸谷歌云一键脚本' " 版本号：${sh_ver}"
-echo -e "            \033[37m\033[01m--胖波比--\033[0m\n"
-echo -e "${Info}主机名1：  $(red_font $HOSTNAME)"
-echo -e "${Info}主机名2：  $(red_font $IP)"
+echo -e "     \033[37m\033[01m--胖波比--\033[0m\n"
+echo -e "${Info}主机名：   $(red_font $IP)"
 echo -e "${Info}SSH端口：  $(red_font $ssh_port)"
 echo -e "${Info}用户名：   $(red_font root)"
 echo -e "${Info}密码是：   $(red_font $pw)"
