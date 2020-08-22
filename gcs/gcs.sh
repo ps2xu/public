@@ -3,7 +3,7 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 stty erase ^H
 
-sh_ver='1.4.4'
+sh_ver='1.4.3'
 github='https://raw.githubusercontent.com/AmuyangA/public/master'
 new_ver=$(curl -s "${github}"/gcs/gcs.sh|grep 'sh_ver='|head -1|awk -F '=' '{print $2}'|sed $'s/\'//g')
 if [[ $sh_ver != "${new_ver}" ]]; then
@@ -25,17 +25,6 @@ yello_font(){
 }
 Info=`green_font [信息]` && Error=`red_font [错误]` && Tip=`yello_font [注意]`
 [ $(id -u) != '0' ] && { echo -e "${Error}您必须以root用户运行此脚本！\n${Info}使用$(red_font 'sudo su')命令切换到root用户！"; exit 1; }
-
-clear && echo
-if [[ `grep -c "./gcs.sh" .bashrc` -eq '0' ]]; then
-	read -p "是否开启脚本自启[y/n](默认:y)：" num
-	[ -z $num ] && num='y'
-	[ $num == 'y' ] && { echo "./gcs.sh" >> .bashrc; }
-else
-	read -p "是否关闭脚本自启[y/n](默认:n)：" num
-	[ -z $num ] && num='n'
-	[ $num != 'n' ] && { sed -i "/gcs.sh/d" .bashrc; }
-fi
 
 sed -i "s#root:/root#root:$(pwd)#g" /etc/passwd
 
@@ -77,22 +66,22 @@ if [[ -e $ip_path ]]; then
 fi
 echo $IP > $(pwd)/ipadd
 
+sed -i '1,/PermitRootLogin/{s/.*PermitRootLogin.*/PermitRootLogin yes/}' /etc/ssh/sshd_config
+sed -i '1,/PasswordAuthentication/{s/.*PasswordAuthentication.*/PasswordAuthentication yes/}' /etc/ssh/sshd_config
 if [[ $num == 'y' ]]; then
 	pw=$(tr -dc 'A-Za-z0-9!@#$%^&*()[]{}+=_,' </dev/urandom |head -c 17)
 fi
-echo root:${pw} |chpasswd
-sed -i '1,/PermitRootLogin/{s/.*PermitRootLogin.*/PermitRootLogin yes/}' /etc/ssh/sshd_config
-sed -i '1,/PasswordAuthentication/{s/.*PasswordAuthentication.*/PasswordAuthentication yes/}' /etc/ssh/sshd_config
+echo root:${pw}|chpasswd
+echo $pw >> $(pwd)/ipadd
 if [[ ${release} == 'centos' ]]; then
 	service sshd restart
 else
 	service ssh restart
 fi
-echo $pw >> $(pwd)/ipadd
 
 clear
 green_font '免费撸谷歌云一键脚本' " 版本号：${sh_ver}"
-echo -e "     \033[37m\033[01m--胖波比--\033[0m\n"
+echo -e "            \033[37m\033[01m--胖波比--\033[0m\n"
 echo -e "${Info}主机名：   $(red_font $IP)"
 echo -e "${Info}SSH端口：  $(red_font $ssh_port)"
 echo -e "${Info}用户名：   $(red_font root)"
@@ -118,8 +107,8 @@ fi
 if [[ $corn_path != "$(pwd)/temp" ]]; then
 	sed -i "/ssh -p ${ssh_port} root@${IP}/d" $corn_path
 fi
-read -p "请输入每 ? 分钟自动登录(默认:8)：" timer
-[ -z $timer ] && timer=8
+read -p "请输入每 ? 分钟自动登录(默认:1)：" timer
+[ -z $timer ] && timer=1
 echo "*/${timer} * * * *  ssh -p ${ssh_port} root@${IP}" >> $corn_path
 if [[ $corn_path == "$(pwd)/temp" ]]; then
 	crontab -u root $corn_path
