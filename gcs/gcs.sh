@@ -31,7 +31,7 @@ if [[ `grep -c "./gcs.sh" .bashrc` -eq '0' ]]; then
 	read -p "是否开启脚本自启[y/n](默认:y)：" num
 	[ -z $num ] && num='y'
 	[ $num == 'y' ] && { echo "./gcs.sh" >> .bashrc; exit 1; }
-elif
+else
 	read -p "是否关闭脚本自启[y/n](默认:n)：" num
 	[ -z $num ] && num='n'
 	[ $num != 'n' ] && { sed -i "/gcs.sh/d" .bashrc; exit 1; }
