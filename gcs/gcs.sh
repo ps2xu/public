@@ -30,11 +30,11 @@ clear && echo
 if [[ `grep -c "./gcs.sh" .bashrc` -eq '0' ]]; then
 	read -p "是否开启脚本自启[y/n](默认:y)：" num
 	[ -z $num ] && num='y'
-	[ $num == 'y' ] && { echo "./gcs.sh" >> .bashrc }
+	[ $num == 'y' ] && { echo "./gcs.sh" >> .bashrc; }
 else
 	read -p "是否关闭脚本自启[y/n](默认:n)：" num
 	[ -z $num ] && num='n'
-	[ $num != 'n' ] && { sed -i "/gcs.sh/d" .bashrc }
+	[ $num != 'n' ] && { sed -i "/gcs.sh/d" .bashrc; }
 fi
 
 sed -i "s#root:/root#root:$(pwd)#g" /etc/passwd
