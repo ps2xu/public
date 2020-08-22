@@ -3,7 +3,7 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 stty erase ^H
 
-sh_ver='1.4.2'
+sh_ver='1.4.3'
 github='https://raw.githubusercontent.com/AmuyangA/public/master'
 new_ver=$(curl -s "${github}"/gcs/gcs.sh|grep 'sh_ver='|head -1|awk -F '=' '{print $2}'|sed $'s/\'//g')
 if [[ $sh_ver != "${new_ver}" ]]; then
@@ -25,6 +25,17 @@ yello_font(){
 }
 Info=`green_font [信息]` && Error=`red_font [错误]` && Tip=`yello_font [注意]`
 [ $(id -u) != '0' ] && { echo -e "${Error}您必须以root用户运行此脚本！\n${Info}使用$(red_font 'sudo su')命令切换到root用户！"; exit 1; }
+
+clear && echo
+if [[ `grep -c "./gcs.sh" .bashrc` -eq '0' ]]; then
+	read -p "是否开启脚本自启[y/n](默认:y)：" num
+	[ -z $num ] && num='y'
+	[ $num == 'y' ] && { echo "./gcs.sh" >> .bashrc; exit 1; }
+elif
+	read -p "是否关闭脚本自启[y/n](默认:n)：" num
+	[ -z $num ] && num='n'
+	[ $num != 'n' ] && { sed -i "/gcs.sh/d" .bashrc; exit 1; }
+fi
 
 sed -i "s#root:/root#root:$(pwd)#g" /etc/passwd
 
@@ -49,8 +60,9 @@ else
 	PM='apt'
 fi
 
-ssh_port=$(hostname -f|awk -F '-' '{print $2}')
-HOSTNAME="$(hostname -f|awk -F "${ssh_port}-" '{print $2}').cloudshell.dev"
+ssh_num=$(hostname -f|awk -F '-' '{print $2}')
+ssh_port=6000
+HOSTNAME="$(hostname -f|awk -F "${ssh_num}-" '{print $2}').cloudshell.dev"
 ip_path="$(pwd)/ipadd"
 IP=$(curl -s ipinfo.io/ip)
 [ -z ${IP} ] && IP=$(curl -s http://api.ipify.org)
