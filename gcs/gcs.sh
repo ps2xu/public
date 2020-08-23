@@ -3,7 +3,7 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 stty erase ^H
 
-sh_ver='1.4.4'
+sh_ver='1.4.5'
 github='https://raw.githubusercontent.com/AmuyangA/public/master'
 new_ver=$(curl -s "${github}"/gcs/gcs.sh|grep 'sh_ver='|head -1|awk -F '=' '{print $2}'|sed $'s/\'//g')
 if [[ $sh_ver != "${new_ver}" ]]; then
@@ -156,40 +156,17 @@ install_v2ray(){
 					pip_path=$node
 				fi
 			done
-			if [[ -n $pip_path ]]; then
+			link_pip(){
+				ln -s $pip_path /usr/local/sbin/pip
 				ln -s $pip_path /usr/local/bin/pip
 				ln -s $pip_path /usr/bin/pip
 				pip install --upgrade pip
+			}
+			if [[ -n $pip_path ]]; then
+				link_pip
 			else
-				unset CMD
-				py_array=(python3.1 python3.2 python3.3 python3.4 python3.5 python3.6 python3.7 python3.8 python3.9)
-				for node in ${py_array[@]};
-				do
-					if type $node >/dev/null 2>&1; then
-						CMD=$node
-					fi
-				done
-				if [[ -n $CMD ]]; then
-					wget -O get-pip.py https://bootstrap.pypa.io/get-pip.py
-					$CMD get-pip.py
-					rm -f get-pip.py
-				else
-					zlib_ver='1.2.11'
-					wget "http://www.zlib.net/zlib-${zlib_ver}.tar.gz"
-					tar -xvzf zlib-${zlib_ver}.tar.gz
-					cd zlib-${zlib_ver}
-					./configure
-					make && make install && cd /root
-					rm -rf zlib*
-					py_ver='3.7.7'
-					wget "https://www.python.org/ftp/python/${py_ver}/Python-${py_ver}.tgz"
-					tar xvf Python-${py_ver}.tgz
-					cd Python-${py_ver}
-					./configure --prefix=/usr/local
-					make && make install && cd /root
-					rm -rf Python*
-				fi
-				check_pip
+				$PM -y install python3.7
+				link_pip
 			fi
 		fi
 	}
