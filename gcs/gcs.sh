@@ -3,7 +3,7 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 stty erase ^H
 
-sh_ver='1.4.3'
+sh_ver='1.4.4'
 github='https://raw.githubusercontent.com/AmuyangA/public/master'
 new_ver=$(curl -s "${github}"/gcs/gcs.sh|grep 'sh_ver='|head -1|awk -F '=' '{print $2}'|sed $'s/\'//g')
 if [[ $sh_ver != "${new_ver}" ]]; then
@@ -64,7 +64,7 @@ if [[ -e $ip_path ]]; then
 	read -p "是否更新密码?[y/n](默认:n)：" num
 	[ -z $num ] && num='n'
 fi
-echo $IP > $(pwd)/ipadd
+sed -i "1c $IP" $(pwd)/ipadd
 
 sed -i '1,/PermitRootLogin/{s/.*PermitRootLogin.*/PermitRootLogin yes/}' /etc/ssh/sshd_config
 sed -i '1,/PasswordAuthentication/{s/.*PasswordAuthentication.*/PasswordAuthentication yes/}' /etc/ssh/sshd_config
@@ -72,14 +72,13 @@ if [[ $num == 'y' ]]; then
 	pw=$(tr -dc 'A-Za-z0-9!@#$%^&*()[]{}+=_,' </dev/urandom |head -c 17)
 fi
 echo root:${pw}|chpasswd
-echo $pw >> $(pwd)/ipadd
+sed -i "2c $pw" $(pwd)/ipadd
 if [[ ${release} == 'centos' ]]; then
 	service sshd restart
 else
 	service ssh restart
 fi
 
-sleep 30s
 clear
 green_font '免费撸谷歌云一键脚本' " 版本号：${sh_ver}"
 echo -e "            \033[37m\033[01m--胖波比--\033[0m\n"
@@ -108,8 +107,8 @@ fi
 if [[ $corn_path != "$(pwd)/temp" ]]; then
 	sed -i "/ssh -p ${ssh_port} root@${IP}/d" $corn_path
 fi
-read -p "请输入每 ? 分钟自动登录(默认:1)：" timer
-[ -z $timer ] && timer=1
+read -p "请输入每 ? 分钟自动登录(默认:8)：" timer
+[ -z $timer ] && timer=8
 echo "*/${timer} * * * *  ssh -p ${ssh_port} root@${IP}" >> $corn_path
 if [[ $corn_path == "$(pwd)/temp" ]]; then
 	crontab -u root $corn_path
