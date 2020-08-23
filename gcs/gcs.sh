@@ -79,6 +79,7 @@ else
 	service ssh restart
 fi
 
+sleep 30s
 clear
 green_font '免费撸谷歌云一键脚本' " 版本号：${sh_ver}"
 echo -e "            \033[37m\033[01m--胖波比--\033[0m\n"
