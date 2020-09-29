@@ -1,0 +1,84 @@
+{
+  "log": {
+    "loglevel": "info",
+    "error": "/var/log/v2ray/error.log",
+    "access": "/var/log/v2ray/access.log"
+  },
+  "inbounds": [
+    {
+      "port": your_port,
+      "domain": "your_domain",
+      "protocol": "vmess",
+      "streamSettings": {
+        "security": "tls",
+        "kcpSettings": {},
+        "tlsSettings": {
+          "certificates": [
+            {
+              "keyFile": "/root/test/cert/domain.key",
+              "certificateFile": "/root/test/cert/domain.crt"
+            }
+          ]
+        },
+        "sockopt": {
+          "mark": 0,
+          "tcpFastOpen": true
+        },
+        "httpSettings": {},
+        "tcpSettings": {},
+        "network": "ws",
+        "quicSettings": {},
+        "wsSettings": {
+          "headers": {
+            "Host": "www.bilibili.com"
+          },
+          "path": "your_path"
+        }
+      },
+      "settings": {
+        "clients": [
+          {
+            "alterId": your_alterId,
+            "id": "your_uuid"
+			"email": "your_email"
+          }
+        ]
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "protocol": "freedom",
+      "settings": {}
+    },
+    {
+      "tag": "blocked",
+      "protocol": "blackhole",
+      "settings": {}
+    }
+  ],
+  "routing": {
+    "rules": [
+      {
+        "ip": [
+          "0.0.0.0/8",
+          "10.0.0.0/8",
+          "100.64.0.0/10",
+          "169.254.0.0/16",
+          "172.16.0.0/12",
+          "192.0.0.0/24",
+          "192.0.2.0/24",
+          "192.168.0.0/16",
+          "198.18.0.0/15",
+          "198.51.100.0/24",
+          "203.0.113.0/24",
+          "::1/128",
+          "fc00::/7",
+          "fe80::/10"
+        ],
+        "outboundTag": "blocked",
+        "type": "field"
+      }
+    ]
+  }
+}
