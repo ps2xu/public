@@ -39,8 +39,8 @@
         "clients": [
           {
             "alterId": your_alterId,
-            "id": "your_uuid"
-			"email": "your_email"
+            "id": "your_uuid",
+	    "email": "your_email"
           }
         ]
       }
